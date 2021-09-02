@@ -69,3 +69,21 @@ impl Measurement {
         f32::from(self.humidity) * 0.001
     }
 }
+
+fn crc16(data: &[u8]) -> u16 {
+    let mut crc =0xFFFF;
+
+    for value in data.iter().map(|&b| u16::from(b)) {
+        crc ^= value;
+        for _ in 0..8 {
+            if crc & 0x01 != 0 {
+                crc >>= 1;
+                crc ^= 0xA001;
+            } else {
+                crc >>= 1;
+            }
+        }
+    }
+
+    crc
+}
