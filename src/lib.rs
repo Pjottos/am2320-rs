@@ -2,33 +2,25 @@ use embedded_hal::blocking::i2c;
 
 const DEVICE_ADDRESS: i2c::SevenBitAddress = 0xB8;
 
-pub struct TemperatureSensor {}
+pub fn measure<I: i2c::WriteRead>(i2c: &mut I) -> Measurement {
+    let raw_temperature = 0;
+    let raw_humidity = 0;
 
-impl TemperatureSensor {
-    pub fn new() -> Self {
-        Self {}
-    }
+    let temperature = if raw_temperature & 0x8000 != 0 {
+        (raw_temperature & 0x7FFF) as i16 * -1
+    } else {
+        raw_temperature as i16
+    };
 
-    pub fn measure<I: i2c::Read>(&self, i2c: &mut I) -> Measurement {
-        let raw_temperature = 0;
-        let raw_humidity = 0;
+    let humidity = if raw_humidity & 0x8000 != 0 {
+        (raw_humidity & 0x7FFF) as i16 * -1
+    } else {
+        raw_humidity as i16
+    };
 
-        let temperature = if raw_temperature & 0x8000 != 0 {
-            (raw_temperature & 0x7FFF) as i16 * -1
-        } else {
-            raw_temperature as i16
-        };
-
-        let humidity = if raw_humidity & 0x8000 != 0 {
-            (raw_humidity & 0x7FFF) as i16 * -1
-        } else {
-            raw_humidity as i16
-        };
-
-        Measurement {
-            temperature,
-            humidity,
-        }
+    Measurement {
+        temperature,
+        humidity,
     }
 }
 
